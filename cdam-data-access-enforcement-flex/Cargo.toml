@@ -1,0 +1,31 @@
+# Copyright 2026 Salesforce, Inc. All rights reserved.
+[package]
+name = "cdam_data_access_enforcement"
+version = "1.0.0"
+rust-version = "1.88.0"
+edition = "2018"
+resolver = "2"
+
+[package.metadata.anypoint]
+group_id = "7e7dd113-5f1b-4a58-be93-21acdc20f1f7"
+definition_asset_id = { name = "cdam-data-access-enforcement", version = "1.0.0" }
+implementation_asset_id = "cdam-data-access-enforcement-flex"
+
+[dependencies]
+pdk = { version = "1.10.0" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
+anyhow = "1.0"
+
+[dev-dependencies]
+pdk-test = { version = "1.10.0" }
+httpmock = "0.6"
+reqwest = "0.11"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+lto = true
+opt-level = 'z'
+strip = "debuginfo"

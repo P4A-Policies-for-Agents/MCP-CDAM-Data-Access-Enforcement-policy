@@ -1,0 +1,141 @@
+---
+apiVersion: gateway.mulesoft.com/v1alpha1
+kind: Extension
+metadata:
+  labels:
+    title: MCP CDAM Data Access Enforcement
+    category: Security
+    description: >-
+      Enforces Informatica Cloud Data Access Management (CDAM) Data Filter and Data
+      De-Identification policies on MCP tool results. The caller's usage context
+      comes from their Data Marketplace consumer access; field classifications
+      come from CDGC.
+    metadata/capabilities/injectionPoint: inbound
+    metadata/capabilities/assetTypes: mcp
+    metadata/interfaceScope: api
+spec:
+  extends:
+    - name: extension-definition
+      namespace: default
+  properties:
+    cdgcLoginUrl:
+      type: string
+      format: service
+      description: IDMC login base URL, e.g. https://dm-us.informaticacloud.com.
+    cdgcApiUrl:
+      type: string
+      format: service
+      description: >-
+        CDGC API base serving catalog search, CDAM policies and Data Marketplace,
+        e.g. https://cdgc-api.dm-us.informaticacloud.com.
+    idmcPodUrl:
+      type: string
+      format: service
+      description: >-
+        IDMC pod REST base serving the platform user API (the host of the
+        baseApiUrl returned at login, without /saas), e.g.
+        https://usw3.dm-us.informaticacloud.com. Used to read the caller's IDMC
+        user groups.
+    cdgcOrgUsername:
+      type: string
+      description: >-
+        IDMC service-account username. Needs read access to the catalog, Data
+        Access assets, Data Marketplace consumer accesses and users.
+      "@context": { "@characteristics": [security:sensitive] }
+    cdgcOrgPassword:
+      type: string
+      description: IDMC service-account password.
+      "@context": { "@characteristics": [security:sensitive] }
+    mcpServerAssetId:
+      type: string
+      description: >-
+        CDGC asset id of the MCP Server this API exposes. Its MCP Tools are matched
+        to tools/call params.name by exact name; each tool's output fields and their
+        data element classifications drive the CDAM evaluation.
+    fieldClassTypes:
+      type: array
+      items:
+        type: string
+      default:
+        - a2d.agentic.McpToolOutputField
+      description: >-
+        CDGC class types (core.classType) of an MCP Tool's output fields. A field's
+        name is its path in the tool result, e.g. "orders[].iban" or
+        "header.customerName".
+    dataCollectionIds:
+      type: array
+      items:
+        type: string
+      default: []
+      description: >-
+        Data Marketplace data collection ids whose consumer access grants use of
+        this MCP server. Empty = a consumer access to any collection counts.
+    consumerHeader:
+      type: string
+      default: x-idmc-user
+      description: >-
+        Request header carrying the caller's IDMC user name (e.g. set by an
+        upstream identity policy).
+    consumerClaim:
+      type: string
+      description: >-
+        Optional JWT claim carrying the caller's IDMC user name. When set and
+        present in the caller's (upstream-validated) Bearer token, it is used
+        instead of consumerHeader.
+    usageContextHeader:
+      type: string
+      default: x-usage-context
+      description: >-
+        Request header carrying the usage context the caller declares for this
+        call: a Data Marketplace usage context id, reference id (e.g. USG-7) or
+        name. Optional when the caller holds exactly one usage context.
+    usageContextClaim:
+      type: string
+      description: >-
+        Optional JWT claim carrying the declared usage context. When set and
+        present, it is used instead of usageContextHeader.
+    requireConsumerAccess:
+      type: boolean
+      default: true
+      description: >-
+        Deny a tools/call (HTTP 403, JSON-RPC error) unless the caller holds an
+        available Data Marketplace consumer access for a dataCollectionIds
+        collection, and the declared usage context (if any) is one of theirs.
+        false = evaluate the call without a usage context instead.
+    policyRefreshSeconds:
+      type: integer
+      default: 300
+      minimum: 30
+      description: Cache TTL for the published CDAM policies and data protections.
+    catalogRefreshSeconds:
+      type: integer
+      default: 3600
+      minimum: 30
+      description: Cache TTL for the MCP server's tools, output fields and classifications.
+    callerRefreshSeconds:
+      type: integer
+      default: 300
+      minimum: 30
+      description: Cache TTL for a caller's IDMC groups and Marketplace usage contexts.
+    failOpenOnIdmcError:
+      type: boolean
+      default: false
+      description: >-
+        With no cached CDAM policies or catalog data (IDMC unreachable), false
+        replaces the tool result with a JSON-RPC error; true passes it through
+        unprotected. Stale cached data is always used when a refresh fails.
+    distributed:
+      type: boolean
+      default: false
+      description: Share caches and refresh locks across replicas (needs shared storage).
+    timeout:
+      type: integer
+      default: 5000
+      description: Per-call IDMC timeout (ms), clamped to a chained refresh budget (~15s).
+  required:
+    - cdgcLoginUrl
+    - cdgcApiUrl
+    - idmcPodUrl
+    - cdgcOrgUsername
+    - cdgcOrgPassword
+    - mcpServerAssetId
