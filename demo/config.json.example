@@ -1,0 +1,20 @@
+{
+  "cdgcLoginUrl": "https://dm-us.informaticacloud.com",
+  "cdgcApiUrl": "https://cdgc-api.dm-us.informaticacloud.com",
+  "idmcPodUrl": "https://<pod>.dm-us.informaticacloud.com",
+  "cdgcOrgUsername": "REPLACE_ME_SERVICE_ACCOUNT",
+  "cdgcOrgPassword": "REPLACE_ME_SECRET",
+  "mcpServerAssetId": "REPLACE_ME_MCP_SERVER_ASSET_ID",
+  "fieldClassTypes": ["a2d.agentic.McpToolOutputField"],
+  "dataCollectionIds": ["REPLACE_ME_DATA_COLLECTION_ID"],
+  "consumerClaim": "idmc_user",
+  "consumerHeader": "x-idmc-user",
+  "usageContextHeader": "x-usage-context",
+  "requireConsumerAccess": true,
+  "policyRefreshSeconds": 300,
+  "catalogRefreshSeconds": 3600,
+  "callerRefreshSeconds": 300,
+  "failOpenOnIdmcError": false,
+  "distributed": false,
+  "timeout": 5000
+}

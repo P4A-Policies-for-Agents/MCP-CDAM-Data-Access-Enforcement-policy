@@ -1,0 +1,20 @@
+{
+  "jwtOrigin": "httpBearerAuthenticationHeader",
+  "jwtExpression": "#[attributes.headers['jwt']]",
+  "signingMethod": "rsa",
+  "signingKeyLength": 256,
+  "jwtKeyOrigin": "text",
+  "textKey": "<realm RSA public key, base64, no PEM header>",
+  "jwksUrl": "http://your-jwks-service.example:80/base/path",
+  "jwksServiceTimeToLive": 60,
+  "jwksServiceConnectionTimeout": 10000,
+  "skipClientIdValidation": true,
+  "clientIdExpression": "#[vars.claimSet.client_id]",
+  "validateAudClaim": true,
+  "mandatoryAudClaim": true,
+  "supportedAudiences": "<audience>",
+  "mandatoryExpClaim": true,
+  "mandatoryNbfClaim": false,
+  "validateCustomClaim": false,
+  "customKeyExpression": "#[authentication.properties['key_to_your_public_pem_certificate']]"
+}

@@ -12,7 +12,9 @@ definition_asset_id = { name = "cdam-data-access-enforcement", version = "1.0.0"
 implementation_asset_id = "cdam-data-access-enforcement-flex"
 
 [dependencies]
-pdk = { version = "1.10.0" }
+# enable_stop_iteration: the request leg resolves the caller (IDMC calls) and may
+# answer 403 itself, so it buffers headers+body before upstream forwarding.
+pdk = { version = "1.10.0", features = ["enable_stop_iteration"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 anyhow = "1.0"
